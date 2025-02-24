@@ -24,5 +24,8 @@ COPY --from=builder /app/app .
 # Give execute permission (if needed)
 RUN chmod +x ./app
 
+EXPOSE 5000
+
+
 # Run the binary
 CMD ["./app"]
