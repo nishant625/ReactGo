@@ -1,0 +1,49 @@
+name: Build and Push Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'main.go'
+      - 'go.mod'
+      - 'go.sum'
+      - 'backend/**'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+
+      - name: Build Go backend
+        run: |
+          go build -o app main.go
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract latest tag from Docker Hub
+        id: get-latest-tag
+        run: |
+          LATEST_TAG=$(curl -s https://hub.docker.com/v2/repositories/${{ secrets.DOCKER_USERNAME }}/backend/tags | jq -r '.results | sort_by(.tag) | last | .name' || echo "0")
+          NEXT_TAG=$((LATEST_TAG + 1))
+          echo "NEXT_TAG=$NEXT_TAG" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:$NEXT_TAG -f backend/Dockerfile .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/backend:$NEXT_TAG
