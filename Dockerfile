@@ -1,7 +1,6 @@
-# Use a minimal Go image as the base
-FROM golang:1.24.0 as builder
+# Stage 1: Build the Go app
+FROM golang:1.24 AS builder
 
-# Set the working directory inside the container
 WORKDIR /app
 
 # Copy Go module files and download dependencies
@@ -11,20 +10,19 @@ RUN go mod download
 # Copy the rest of the application source code
 COPY . .
 
-# Build the Go application
-RUN go build -o app main.go
+# Build the Go application (important: static binary!)
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app main.go
 
-# Use a smaller image for the final container
+# Stage 2: Create a small image with only the compiled binary
 FROM alpine:latest
 
-# Set the working directory
 WORKDIR /root/
 
-# Copy the built app from the builder stage
+# Copy the compiled binary from the builder stage
 COPY --from=builder /app/app .
 
-# Expose the port the app runs on
-EXPOSE 5000
+# Give execute permission (if needed)
+RUN chmod +x ./app
 
-# Run the Go application
+# Run the binary
 CMD ["./app"]
