@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'client/**'
-      - '.github/workflows/**'
+      - '.github/workflows/frontend.yml'
 
 jobs:
   build-and-push:

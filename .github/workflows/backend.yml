@@ -9,7 +9,7 @@ on:
       - 'go.mod'
       - 'go.sum'
       - 'backend/**'
-      - '.github/workflows/**'
+      - '.github/workflows/backend.yml'
 
 jobs:
   build-and-push:
