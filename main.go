@@ -26,11 +26,13 @@ var collection *mongo.Collection
 func main() {
 	fmt.Println("bello")
 
-	if os.Getenv("ENV") != "production" {
+	env := os.Getenv("ENV")          // Get the environment variable
+	fmt.Println("Current ENV:", env) // Debugging output
 
+	if env != "production" {
 		err := godotenv.Load(".env")
 		if err != nil {
-			log.Fatal("Error loading .env file", err)
+			log.Fatal("Error loading .env file:", err)
 		}
 	}
 	MONGODB_URI := os.Getenv("MONGODB_URI")
