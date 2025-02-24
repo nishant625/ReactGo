@@ -100,7 +100,6 @@ func createTodos(c *fiber.Ctx) error {
 
 	if todo.Body == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Todo body must not be empty"})
-
 	}
 	insertResult, err := collection.InsertOne(context.Background(), todo)
 
